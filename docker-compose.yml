@@ -34,3 +34,5 @@ services:
     volumes:
       - ./models:/app/stable-diffusion-webui/models
       - ./outputs:/app/stable-diffusion-webui/outputs
+      - ./extensions:/app/stable-diffusion-webui/extensions
+      - ./extensions-builtin:/app/stable-diffusion-webui/extensions-builtin
