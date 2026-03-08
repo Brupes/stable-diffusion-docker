@@ -1,0 +1,36 @@
+services:
+  webui:
+    stdin_open: true
+    tty: true
+    privileged: true
+    build:
+      dockerfile: 'Dockerfile'
+      args:
+        STABLE_DIFFUSION_VERSION: ${STABLE_DIFFUSION_VERSION}
+    environment:
+      - STABLE_DIFFUSION_REPO=https://github.com/joypaul162/Stability-AI-stablediffusion.git
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    ports:
+      - ${PORT}:7860
+    command:
+      - "./webui.sh"
+      - "-f"
+      - "--precision"
+      - "full"
+      - "--listen"
+      - "--port"
+      - "7860"
+      - "--skip-torch-cuda-test"
+      - "--no-half"
+      - "--no-half-vae"
+      - "--enable-insecure-extension-access"
+    volumes:
+      - ./models:/app/stable-diffusion-webui/models
+      - ./outputs:/app/stable-diffusion-webui/outputs
