@@ -25,8 +25,7 @@ WORKDIR /app/stable-diffusion-webui
 RUN python3.10 -m venv venv
 ENV PATH="/app/stable-diffusion-webui/venv/bin:$PATH"
 
-RUN pip install --upgrade pip wheel setuptools
-RUN pip install xformers==0.0.23.post1
+RUN pip install --upgrade pip wheel
 RUN pip install -r requirements_versions.txt
 
 RUN mkdir -p repositories
@@ -57,9 +56,8 @@ RUN cd repositories/stable-diffusion-stability-ai && \
     git checkout cf1d67a6fd5ea1aa600c4df58e5b47da45f6bdbf && \
     cd ../..
 
-RUN pip install "setuptools<81"
 RUN pip install git+https://github.com/openai/CLIP.git@d50d76daa670286dd6cacf3bcd80b5e4823fc8e1 --no-build-isolation --prefer-binary
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+RUN pip install setuptools xformers torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 
 # ENV NO_TCMALLOC=true
 
