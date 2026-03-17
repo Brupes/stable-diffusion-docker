@@ -36,3 +36,10 @@ services:
       - ./outputs:/app/stable-diffusion-webui/outputs
       - ./extensions:/app/stable-diffusion-webui/extensions
       - ./extensions-builtin:/app/stable-diffusion-webui/extensions-builtin
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --spider http://localhost:7860 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 400
+      start_period: 5s
+      start_interval: 2s
