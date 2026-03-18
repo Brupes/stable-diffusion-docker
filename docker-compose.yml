@@ -19,19 +19,8 @@ services:
               capabilities: [gpu]
     ports:
       - ${PORT}:7860
-    command:
-      - "./webui.sh"
-      - "-f"
-      - "--precision"
-      - "full"
-      - "--listen"
-      - "--port"
-      - "7860"
-      - "--skip-torch-cuda-test"
-      - "--no-half"
-      - "--no-half-vae"
-      - "--enable-insecure-extension-access"
     volumes:
+      - venv:/app/venv
       - ./models:/app/stable-diffusion-webui/models
       - ./outputs:/app/stable-diffusion-webui/outputs
       - ./extensions:/app/stable-diffusion-webui/extensions
@@ -43,3 +32,6 @@ services:
       retries: 400
       start_period: 5s
       start_interval: 2s
+
+volumes:
+  venv:

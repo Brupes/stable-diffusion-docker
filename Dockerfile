@@ -1,9 +1,6 @@
 FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.10 \
-    python3.10-venv \
-    python3-pip \
     wget \
     unzip \
     git \
@@ -21,12 +18,6 @@ RUN unzip v${STABLE_DIFFUSION_VERSION}.zip
 RUN mv stable-diffusion-webui-${STABLE_DIFFUSION_VERSION} stable-diffusion-webui
 
 WORKDIR /app/stable-diffusion-webui
-
-RUN python3.10 -m venv venv
-ENV PATH="/app/stable-diffusion-webui/venv/bin:$PATH"
-
-RUN pip install --upgrade pip wheel
-RUN pip install -r requirements_versions.txt
 
 RUN mkdir -p repositories
 
@@ -56,14 +47,36 @@ RUN cd repositories/stable-diffusion-stability-ai && \
     git checkout cf1d67a6fd5ea1aa600c4df58e5b47da45f6bdbf && \
     cd ../..
 
-RUN pip install git+https://github.com/openai/CLIP.git@d50d76daa670286dd6cacf3bcd80b5e4823fc8e1 --no-build-isolation --prefer-binary
-RUN pip install setuptools xformers torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
-
-# ENV NO_TCMALLOC=true
-
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.10 \
+    python3.10-venv \
+    python3.10-dev \
+    python3-pip \
+    libssl-dev \
+    libffi-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN python3.10 -m venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
+ENV VIRTUAL_ENV="/app/venv"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bc \
+    build-essential \
+    g++ \
+    gcc \
+    libcairo2-dev \
+    pkg-config \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN cp stable-diffusion-webui/requirements_versions.txt ./
 RUN cp stable-diffusion-webui/webui.sh ./
+
+ADD scripts/start.sh ./
+ADD scripts/webui-user.sh ./
 
 EXPOSE 7860
 
-CMD ["./webui.sh", "-f", "--listen", "--port", "7860", "--skip-torch-cuda-test", "--enable-insecure-extension-access"]
+CMD ["/app/start.sh"]
