@@ -9,6 +9,7 @@ services:
         STABLE_DIFFUSION_VERSION: ${STABLE_DIFFUSION_VERSION}
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
+      - COMMANDLINE_ARGS=${COMMANDLINE_ARGS}
     deploy:
       resources:
         reservations:

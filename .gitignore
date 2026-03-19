@@ -2,3 +2,5 @@ models
 outputs
 extensions
 extensions-builtin
+
+.env

@@ -5,4 +5,4 @@ if [ -f "/app/venv" ]; then
 fi
 source /app/venv/bin/activate
 
-./webui.sh
+./webui.sh --listen --port 7860
