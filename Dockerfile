@@ -34,6 +34,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Set Python 3.13 as the default python3
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 2
+RUN update-alternatives --set python3 /usr/bin/python3.13
+RUN ln -sf /usr/include/python3.13 /usr/include/python3 && \
+    ln -sf /usr/bin/python3.13-config /usr/bin/python3-config
+
 # Install Stable Diffusion WebUI Forge Classic
 WORKDIR /app
 ARG STABLE_DIFFUSION_VERSION=2.16
