@@ -7,9 +7,11 @@ services:
       dockerfile: 'Dockerfile'
       args:
         STABLE_DIFFUSION_VERSION: ${STABLE_DIFFUSION_VERSION}
+    env_file:
+      - .env.example
+      - .env
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
-      - COMMANDLINE_ARGS=${COMMANDLINE_ARGS}
     deploy:
       resources:
         reservations:
