@@ -1,5 +1,6 @@
-FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+FROM nvidia/cuda:13.2.0-cudnn-runtime-ubuntu24.04
 
+# Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     unzip \
@@ -7,75 +8,45 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 \
     libgoogle-perftools4 \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-
-ARG STABLE_DIFFUSION_VERSION
-
-RUN wget https://github.com/AUTOMATIC1111/stable-diffusion-webui/archive/refs/tags/v${STABLE_DIFFUSION_VERSION}.zip
-RUN unzip v${STABLE_DIFFUSION_VERSION}.zip
-RUN mv stable-diffusion-webui-${STABLE_DIFFUSION_VERSION} stable-diffusion-webui
-
-WORKDIR /app/stable-diffusion-webui
-
-RUN mkdir -p repositories
-
-# assets
-RUN git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-assets.git repositories/stable-diffusion-webui-assets
-RUN cd repositories/stable-diffusion-webui-assets && \
-    git checkout 6f7db241d2f8ba7457bac5ca9753331f0c266917 && \
-    cd ../..
-# Stable Diffusion XL
-RUN git clone https://github.com/Stability-AI/generative-models.git repositories/generative-models
-RUN cd repositories/generative-models && \
-    git checkout 45c443b316737a4ab6e40413d7794a7f5657c19f && \
-    cd ../..
-# K-diffusion
-RUN git clone https://github.com/crowsonkb/k-diffusion.git repositories/k-diffusion
-RUN cd repositories/k-diffusion && \
-    git checkout ab527a9a6d347f364e3d185ba6d714e22d80cb3c && \
-    cd ../..
-# BLIP
-RUN git clone https://github.com/salesforce/BLIP.git repositories/BLIP
-RUN cd repositories/BLIP && \
-    git checkout 48211a1594f1321b00f14c9f7a5b4813144b2fb9 && \
-    cd ../..
-# Stable Diffusion
-RUN git clone https://github.com/joypaul162/Stability-AI-stablediffusion.git repositories/stable-diffusion-stability-ai
-RUN cd repositories/stable-diffusion-stability-ai && \
-    git checkout cf1d67a6fd5ea1aa600c4df58e5b47da45f6bdbf && \
-    cd ../..
-
-WORKDIR /app
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.10 \
-    python3.10-venv \
-    python3.10-dev \
-    python3-pip \
-    libssl-dev \
-    libffi-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN python3.10 -m venv /app/venv
-ENV PATH="/app/venv/bin:$PATH"
-ENV VIRTUAL_ENV="/app/venv"
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
     bc \
     build-essential \
     g++ \
     gcc \
     libcairo2-dev \
     pkg-config \
+    libssl-dev \
+    libffi-dev \
+    ffmpeg \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN cp stable-diffusion-webui/requirements_versions.txt ./
-RUN cp stable-diffusion-webui/webui.sh ./
+# Install UV
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uvx /usr/local/bin/uvx
+
+# Install Python
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa -y
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.13 \
+    python3.13-venv \
+    python3.13-dev \
+    python3-pip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Stable Diffusion WebUI Forge Classic
+WORKDIR /app
+ARG STABLE_DIFFUSION_VERSION=2.16
+
+RUN wget https://github.com/Haoming02/sd-webui-forge-classic/archive/refs/tags/${STABLE_DIFFUSION_VERSION}.zip
+RUN unzip ${STABLE_DIFFUSION_VERSION}.zip
+RUN mv /app/sd-webui-forge-classic-${STABLE_DIFFUSION_VERSION}/* /app
+RUN rm ${STABLE_DIFFUSION_VERSION}.zip
 
 ADD scripts/start.sh ./
-ADD scripts/webui-user.sh ./
+ADD scripts/webui.sh ./
+
+RUN chmod +x /app/webui.sh /app/start.sh
 
 EXPOSE 7860
 

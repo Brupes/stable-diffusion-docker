@@ -8,7 +8,6 @@ services:
       args:
         STABLE_DIFFUSION_VERSION: ${STABLE_DIFFUSION_VERSION}
     environment:
-      - STABLE_DIFFUSION_REPO=https://github.com/joypaul162/Stability-AI-stablediffusion.git
       - NVIDIA_VISIBLE_DEVICES=all
     deploy:
       resources:
@@ -19,12 +18,14 @@ services:
               capabilities: [gpu]
     ports:
       - ${PORT}:7860
+      - 8189:8189
     volumes:
       - venv:/app/venv
-      - ./models:/app/stable-diffusion-webui/models
-      - ./outputs:/app/stable-diffusion-webui/outputs
-      - ./extensions:/app/stable-diffusion-webui/extensions
-      - ./extensions-builtin:/app/stable-diffusion-webui/extensions-builtin
+      - ./models:/app/models
+      - ./outputs:/app/outputs
+      - ./extensions:/app/extensions
+      - ./extensions-builtin:/app/extensions-builtin
+      - ./repositories:/app/repositories
     healthcheck:
       test: ["CMD-SHELL", "wget --quiet --spider http://localhost:7860 || exit 1"]
       interval: 5s
