@@ -25,10 +25,9 @@ services:
     volumes:
       - venv:/app/venv
       - ./models:/app/models
-      - ./outputs:/app/outputs
+      - ./output:/app/output
       - ./extensions:/app/extensions
       - ./extensions-builtin:/app/extensions-builtin
-      - ./repositories:/app/repositories
     healthcheck:
       test: ["CMD-SHELL", "wget --quiet --spider http://localhost:7860 || exit 1"]
       interval: 5s
